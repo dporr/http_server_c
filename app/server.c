@@ -6,7 +6,7 @@
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
-
+#include "http.h"
 int main() {
 	// Disable output buffering
 	setbuf(stdout, NULL);
@@ -40,8 +40,10 @@ int main() {
 	//send reply
 	//https://man7.org/linux/man-pages/man2/send.2.html
 	//ssize_t send(int sockfd, const void buf[.len], size_t len, int flags);
-	char *response = "";
-	send(client_socket, )
+	char response[32];
+	sprintf(response, "%s %s\n\r\n\r", HTTP_1_1, HTTP_200_OK);
+	printf("%s",response);
+	send(client_socket, &response, strlen(response),0);
 	// Uncomment this block to pass the first stage
 	//
 	// int server_fd, client_addr_len;
