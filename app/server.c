@@ -28,9 +28,20 @@ int main() {
 	//https://man7.org/linux/man-pages/man2/bind.2.html
 	int bind_r = bind(socket_fd, (struct sockaddr *) &address, sizeof(address));
 	listen(socket_fd, 5);
+	/*Accept clients*/
+	//const struct sockaddr_in client_address;
 	//int accept(int socket, struct sockaddr *restrict address, socklen_t *restrict address_len);
 	//https://man7.org/linux/man-pages/man2/accept.2.html
-	accept(socket_fd, NULL, NULL);
+	int client_socket = accept(socket_fd, 0,0); //&client_address, sizeof(struct sockaddr_in));
+
+	//Read client request
+	//https://man7.org/linux/man-pages/man2/recv.2.html
+
+	//send reply
+	//https://man7.org/linux/man-pages/man2/send.2.html
+	//ssize_t send(int sockfd, const void buf[.len], size_t len, int flags);
+	char *response = "";
+	send(client_socket, )
 	// Uncomment this block to pass the first stage
 	//
 	// int server_fd, client_addr_len;
