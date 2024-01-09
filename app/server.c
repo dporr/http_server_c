@@ -14,6 +14,23 @@ int main() {
 	// You can use print statements as follows for debugging, they'll be visible when running tests.
 	printf("Logs from your program will appear here!\n");
 
+	int socket_fd =  socket(PF_INET, SOCK_STREAM, 0);
+	//const struct sockaddr *address
+	const struct sockaddr_in address = {
+		.sin_family = AF_INET,
+		.sin_port = htons(4221),
+		.sin_addr = {
+			.s_addr = htonl(INADDR_ANY)
+		}
+	};
+
+	//bind(int socket, const struct sockaddr *address, socklen_t address_len);
+	//https://man7.org/linux/man-pages/man2/bind.2.html
+	int bind_r = bind(socket_fd, (struct sockaddr *) &address, sizeof(address));
+	listen(socket_fd, 5);
+	//int accept(int socket, struct sockaddr *restrict address, socklen_t *restrict address_len);
+	//https://man7.org/linux/man-pages/man2/accept.2.html
+	accept(socket_fd, NULL, NULL);
 	// Uncomment this block to pass the first stage
 	//
 	// int server_fd, client_addr_len;
