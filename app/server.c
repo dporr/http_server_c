@@ -36,9 +36,9 @@ int main() {
 
 	//Read client request
 	//https://man7.org/linux/man-pages/man2/recv.2.html
-	char *r = malloc(MAX_REQUEST_BUFFER);
+	char r[MAX_REQUEST_BUFFER];
 	struct http_request *client_data = malloc(sizeof(struct http_request));
-	ssize_t read_bytes = recv(client_socket, &r, MAX_REQUEST_BUFFER,0);
+	ssize_t read_bytes = recv(client_socket, r, MAX_REQUEST_BUFFER,0);
 	parse_request(r, client_data);
 	//send reply
 	//https://man7.org/linux/man-pages/man2/send.2.html
