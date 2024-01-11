@@ -43,7 +43,7 @@ int main() {
 	struct response my_r = { 
 		.status_line =  {
 			.http_version = HTTP_1_1,
-			.reasson_phrase = "HTTP_200_OK",
+			.reason_phrase = HTTP_200_OK,
 			.status_code = 200,
 		}
 	};

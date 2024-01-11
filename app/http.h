@@ -1,7 +1,9 @@
 #ifndef HTTP_H
 #define HTTP_H
-#include <stdio.h>
 #include <string.h>
+#include <sys/socket.h>
+#include <stdlib.h>
+#include <stdio.h>
 /*Defines special characters and status codes according to RFC 2616*/
 //HTTP version
 #define HTTP_1_1 "HTTP/1.1"
@@ -41,6 +43,20 @@ struct response {
     struct response_headers headers;
 };
 
-ssize_t send_response(int client_socket, struct response my_r);
+struct request_line{
+        char method[10];
+        char path[512];
+        char http_version[10];
+};
 
+struct request_headers {
+    char *headers;
+};
+struct http_request {
+    struct request_line *request_line;
+    struct request_headers headers;
+};
+
+ssize_t send_response(int client_socket, struct response my_r);
+ssize_t parse_request(char *r, struct http_request client_data);
 #endif
