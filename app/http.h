@@ -1,6 +1,7 @@
 #ifndef HTTP_H
 #define HTTP_H
-
+#include <stdio.h>
+#include <string.h>
 /*Defines special characters and status codes according to RFC 2616*/
 //HTTP version
 #define HTTP_1_1 "HTTP/1.1"
@@ -25,18 +26,35 @@
 //                        [ message-body ]          ; Section 7.2
 
 //Status-Line = HTTP-Version SP Status-Code SP Reason-Phrase CRLF
-// struct status_line = {
-//     char   *http_version, 
-//     short  status_code[3],
-//     char   reasson_phrase[16]
-// }
+struct status_line {
+    char   *http_version;
+    short  status_code[3];
+    char   reasson_phrase[16];
+};
 
-// struct response_headers {
-//     char *headers,
-// }
-// struct response {
-//     struct status_line status_line,
-//     struct headers response_headers,
-// }
+struct response_headers {
+    char *headers;
+};
 
+struct response {
+    struct status_line status_line;
+    struct response_headers headers;
+};
+
+ssize_t send_response(int client_socket, struct response my_r);
+ssize_t send_response(int client_socket, struct response my_r){
+    //check socket fd is valid
+    char *response = malloc(sizeof(my_r));
+    sprintf(response, "%s %s\n\r\n\r",
+                     my_r.status_line.http_version,
+                     my_r.status_line.reasson_phrase
+                     );
+    printf("Size of my_r: %lu size of response: %lu \nContents of response: %s",
+            sizeof(my_r),
+            sizeof(response),
+            response
+            );
+   ssize_t  ret =  send(client_socket,response, sizeof(response), 0);
+   return ret;
+}
 #endif
