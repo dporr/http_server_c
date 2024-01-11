@@ -29,7 +29,7 @@
 struct status_line {
     char   *http_version;
     short  status_code[3];
-    char   reasson_phrase[16];
+    char   reason_phrase[16];
 };
 
 struct response_headers {
@@ -44,17 +44,20 @@ struct response {
 ssize_t send_response(int client_socket, struct response my_r);
 ssize_t send_response(int client_socket, struct response my_r){
     //check socket fd is valid
-    char *response = malloc(sizeof(my_r));
-    sprintf(response, "%s %s\n\r\n\r",
+    char *response = malloc(
+                        strlen(my_r.status_line.http_version) +
+                        strlen(my_r.status_line.reason_phrase) +
+                        6);
+    sprintf(response, "%s %s\r\n\r\n",
                      my_r.status_line.http_version,
-                     my_r.status_line.reasson_phrase
+                     my_r.status_line.reason_phrase
                      );
     printf("Size of my_r: %lu size of response: %lu \nContents of response: %s",
             sizeof(my_r),
             sizeof(response),
             response
             );
-   ssize_t  ret =  send(client_socket,response, sizeof(response), 0);
+   ssize_t  ret =  send(client_socket,response, strlen(response), 0);
    return ret;
 }
 #endif
