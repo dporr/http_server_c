@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 /*Defines special characters and status codes according to RFC 2616*/
+#define MAX_REQUEST_BUFFER 8192 //8KiB
 //HTTP version
 #define HTTP_1_1 "HTTP/1.1"
 #define HTTP_VERSION "HTTP/1.1"

@@ -17,3 +17,8 @@ ssize_t send_response(int client_socket, struct response my_r){
    ssize_t  ret =  send(client_socket,response, strlen(response), 0);
    return ret;
 }
+
+ssize_t parse_request(char *r, struct http_request client_data){
+    if( !client_data  | !r || strnlen(r, MAX_REQUEST_BUFFER) >= MAX_REQUEST_BUFFER) return -1;
+    //tokenize *r and validate individual parts
+}
