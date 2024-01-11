@@ -59,5 +59,5 @@ struct http_request {
 };
 
 ssize_t send_response(int client_socket, struct response my_r);
-ssize_t parse_request(char *r, struct http_request client_data);
+ssize_t parse_request(char *r, struct http_request *client_data);
 #endif
