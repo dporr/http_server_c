@@ -12,7 +12,7 @@
 //Special chars
 #define CR '\r' //Carriage return
 #define LF '\n' //LineFeed
-#define S  '\s' //separator
+#define SP  ' ' //separator
 //Status codes
 #define HTTP_100_continue  "100 Continue"
 #define HTTP_200_OK        "200 OK"
@@ -44,6 +44,7 @@ struct response {
     struct response_headers headers;
 };
 
+//Request-Line   = Method SP Request-URI SP HTTP-Version CRLF
 struct request_line{
         char method[10];
         char path[512];

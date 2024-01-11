@@ -19,7 +19,34 @@ ssize_t send_response(int client_socket, struct response my_r){
 }
 
 ssize_t parse_request(char *r, struct http_request *client_data){
-    if( !client_data  | !r || strnlen(r, MAX_REQUEST_BUFFER) >= MAX_REQUEST_BUFFER) return -1;
+    if( !client_data  || !r || strnlen(r, MAX_REQUEST_BUFFER) >= MAX_REQUEST_BUFFER){
+        return -1;
+    }
+    client_data->request_line = malloc(sizeof(struct request_line));
     //tokenize *r and validate individual parts
+    //Request-Line   = Method SP Request-URI SP HTTP-Version CRLF
+    char *token = strtok(r, "\r\n");
+    //At this point we only care aboyt the request_line ignore headers and body
+    // wile(token){
+    //     token = strtok(NULL, "\r\n",&sp);
+    // }
+    /*Parse request line*/
+   // Parse request line
+    token = strtok(token, (char *) SP);
+    strcpy(client_data->request_line->method, token);
+
+    token = strtok(NULL, (char *) SP);
+    strcpy(client_data->request_line->path, token);
+
+    token = strtok(NULL, (char *) SP);
+    strcpy(client_data->request_line->http_version, token);
+    printf("Size of r: %lu size of client_data: %lu \nContents of Request-Line: %s %s %s",
+            strlen(r),
+            sizeof(struct http_request),
+            client_data->request_line->method,
+            client_data->request_line->path,
+            client_data->request_line->http_version
+            );  
+
     return 0;
 }
