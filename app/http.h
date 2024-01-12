@@ -4,8 +4,11 @@
 #include <sys/socket.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
 /*Defines special characters and status codes according to RFC 2616*/
 #define MAX_REQUEST_BUFFER 8192 //8KiB
+#define METHOD_SIZE 10
+#define PATH_SIZE 512
 //HTTP version
 #define HTTP_1_1 "HTTP/1.1"
 #define HTTP_VERSION "HTTP/1.1"
@@ -31,7 +34,7 @@
 //Status-Line = HTTP-Version SP Status-Code SP Reason-Phrase CRLF
 struct status_line {
     char   *http_version;
-    short  status_code[3];
+    short  status_code;
     char   reason_phrase[16];
 };
 
