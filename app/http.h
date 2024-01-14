@@ -38,14 +38,13 @@ struct status_line {
     char   reason_phrase[16];
 };
 
-struct response_headers {
-    char *headers;
-};
-
 struct response {
     struct status_line status_line;
-    struct response_headers headers;
+    char headers[512];
+    char body[MAX_REQUEST_BUFFER];
 };
+
+
 
 //Request-Line   = Method SP Request-URI SP HTTP-Version CRLF
 struct request_line{
@@ -64,4 +63,6 @@ struct http_request {
 
 ssize_t send_response(int client_socket, struct response my_r);
 ssize_t parse_request(char *r, struct http_request *client_data);
+void parse_request_line(char *r, struct request_line *rl);
+void parse_path(struct request_line *rl, char **path_sections);
 #endif

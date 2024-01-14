@@ -49,7 +49,7 @@ int main() {
 		client_data->request_line = malloc(sizeof(struct request_line));
 
 		ssize_t read_bytes = recv(client_socket, r, MAX_REQUEST_BUFFER,0);
-		printf("Got %d bytes for request %s", read_bytes, r);
+		printf("Got %ld bytes for request %s", read_bytes, r);
 		parse_request(r, client_data);
 		
 		struct response my_r = { 
@@ -57,14 +57,28 @@ int main() {
 				.http_version = HTTP_1_1,
 				.reason_phrase = HTTP_200_OK,
 				.status_code = 200,
-			}
+			},
+			.body = {0}
 		};
 		if(client_data){
 			if( strcmp(client_data->request_line->path, "/" ) != 0){
-				strcpy(my_r.status_line.reason_phrase, HTTP_404_Not_Found);
-				my_r.status_line.status_code = 404;
-			} 
+				char path[512] = {0};
+				strcpy(path, client_data->request_line->path);
+				int i = 0;
+				char *ptr;
+				char *token = strtok_r(path, "/", &ptr);
+				if(strcmp(token, "echo" ) == 0){
+					strcpy(my_r.body, ptr);
+					char headers[512] = {0};
+					sprintf(headers, "Content-Type: text/plain\nContent-Length: %ld\n", strlen(ptr));
+					strcpy(my_r.headers, headers);
+				} else{
+					strcpy(my_r.status_line.reason_phrase, HTTP_404_Not_Found);
+					my_r.status_line.status_code = 404;
+				}
+			}
 		}
+		printf("Passing FD:%d\n", client_socket);
 		send_response(client_socket, my_r);
 		free(client_data->request_line);
 		free(client_data);
