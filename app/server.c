@@ -47,6 +47,11 @@ int main() {
 		char r[MAX_REQUEST_BUFFER] = {0};
 		struct http_request *client_data = malloc(sizeof(struct http_request));
 		client_data->request_line = malloc(sizeof(struct request_line));
+		// Initialize the array with null values
+		for (int i = 0; i < 10; i++) {
+			client_data->headers[i].header_k = HTTP_GENERIC_H;
+			strcpy(client_data->headers[i].header_v, "");
+		}
 
 		ssize_t read_bytes = recv(client_socket, r, MAX_REQUEST_BUFFER,0);
 		printf("Got %ld bytes for request %s", read_bytes, r);
@@ -72,10 +77,27 @@ int main() {
 					char headers[512] = {0};
 					sprintf(headers, "Content-Type: text/plain\nContent-Length: %ld\n", strlen(ptr));
 					strcpy(my_r.headers, headers);
-				} else{
+				} else if(strcmp(token, "user-agent" ) == 0){
+					char* UA = client_data->headers[(int)HTTP_USER_AGENT_H].header_v;
+					char* HH = client_data->headers[(int)HTTP_HOST_H].header_v;
+					char* AH = client_data->headers[(int)HTTP_ACCEPT_H].header_v;
+					printf("\n\nU-A:%s HostH: %s Accept: %s\n\n", UA, HH, AH);
+					char res_headers[512] = {0};
+					sprintf(res_headers, "Content-Type: text/plain\nContent-Length: %ld\n", strlen(UA));
+					strcpy(my_r.headers, res_headers);
+					strcpy(my_r.body, UA);
+				}
+				else{
+					char res_headers[512] = {0};
+					sprintf(res_headers, "Content-Type: text/plain\nContent-Length: %d\n", 0);
+					strcpy(my_r.headers, res_headers);
 					strcpy(my_r.status_line.reason_phrase, HTTP_404_Not_Found);
 					my_r.status_line.status_code = 404;
 				}
+			}else{
+				char res_headers[512] = {0};
+				sprintf(res_headers, "Content-Type: text/plain\nContent-Length: %d\n", 0);
+				strcpy(my_r.headers, res_headers);
 			}
 		}
 		printf("Passing FD:%d\n", client_socket);

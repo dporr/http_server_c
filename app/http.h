@@ -22,6 +22,15 @@
 #define HTTP_302_Found     "302 Found"
 #define HTTP_403_Forbbiden "403 Forbidden"
 #define HTTP_404_Not_Found "404 Not Found"
+enum http_header {
+    HTTP_GENERIC_H = -1,
+    HTTP_HOST_H,
+    HTTP_USER_AGENT_H,
+    HTTP_REFERER_H,
+    HTTP_ACCEPT_H
+};
+
+extern const char* http_header_values[]; // Declaration as an external symbol
 //    After receiving and interpreting a request message, a server responds
 //    with an HTTP response message.
 //        Response      = Status-Line               ; Section 6.1
@@ -53,16 +62,22 @@ struct request_line{
         char http_version[10];
 };
 
+struct header_kv {
+    enum http_header header_k;
+    char header_v[256]; //Limit header value to 256 chars
+};
 struct request_headers {
     char *headers;
 };
+
 struct http_request {
     struct request_line *request_line;
-    struct request_headers headers;
+    struct header_kv headers[10];
 };
 
 ssize_t send_response(int client_socket, struct response my_r);
 ssize_t parse_request(char *r, struct http_request *client_data);
 void parse_request_line(char *r, struct request_line *rl);
 void parse_path(struct request_line *rl, char **path_sections);
+void parse_headers(char *r, struct header_kv *headers);
 #endif

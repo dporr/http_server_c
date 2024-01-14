@@ -1,4 +1,12 @@
 #include "http.h"
+
+const char* http_header_values[] = {
+    "Host",
+    "User-Agent",
+    "Referer",
+    "Accept"
+};
+
 ssize_t send_response(int client_socket, struct response my_r){
     //check socket fd is valid
     char response[strlen(my_r.status_line.http_version) +
@@ -6,7 +14,7 @@ ssize_t send_response(int client_socket, struct response my_r){
                 strlen(my_r.headers) + //By missing this I was BoFing here and thus corrupting the client_socket variable
                 strlen(my_r.body) +
                 6];
-    sprintf(response, "%s %s\r\n%s\n%s\r\n",
+    sprintf(response, "%s %s\r\n%s\n%s",
                     my_r.status_line.http_version,
                     my_r.status_line.reason_phrase,
                     my_r.headers,
@@ -22,7 +30,7 @@ ssize_t send_response(int client_socket, struct response my_r){
         printf("File descriptor: %d\n", client_socket);
         perror("send");
    }
-   close(client_socket);
+//    close(client_socket);
    return ret;
 }
 
@@ -41,15 +49,50 @@ void parse_request_line(char *r, struct request_line *rl){
     rl->http_version[9] = '\0';
 }
 
+
+void parse_headers(char *r, struct header_kv *rq_headers){
+    if(!rq_headers){
+        printf("Headers field is Null");
+    }
+    char *ptr;
+    char *token = strtok_r(r, "\r\n",&ptr);
+    while(token){
+        // printf("Got header: %s\n", token);
+        char *sptr;
+        char *stoken = strtok_r(token, ":", &sptr);
+        ssize_t t = sizeof(http_header_values) / sizeof(http_header_values[0]);
+        for(int i=0; i <= sizeof(http_header_values) / sizeof(http_header_values[0]) ; i++){
+            if(strcmp(stoken,http_header_values[i]) == 0){
+                (rq_headers + i )->header_k = (enum http_header) i;
+                strcpy((rq_headers + i)->header_v, sptr);
+            }
+        }
+		token = strtok_r(NULL, "\r\n", &ptr);
+	}
+}
+/**
+   A request message from a client to a server includes, within the
+   first line of that message, the method to be applied to the resource,
+   the identifier of the resource, and the protocol version in use.
+ 
+        Request       = Request-Line              ; Section 5.1
+                        *(( general-header        ; Section 4.5
+                         | request-header         ; Section 5.3
+                         | entity-header ) CRLF)  ; Section 7.1
+                        CRLF
+                        [ message-body ]          ; Section 4.3
+*/
 ssize_t parse_request(char *r, struct http_request *client_data){
     if( !client_data  || !r || strnlen(r, MAX_REQUEST_BUFFER) >= MAX_REQUEST_BUFFER){
         return -1;
     }
     //tokenize *r and validate individual parts
-    char *token = strtok(r, "\r\n");
+    char *ptr;
+    char *token = strtok_r(r, "\r\n", &ptr);
     if(client_data->request_line) {
         parse_request_line(token, client_data->request_line);
     }
+    parse_headers(ptr, client_data->headers);
     printf("Size of r: %lu size of client_data: %lu \nContents of Request-Line: %s %s %s",
             strlen(r),
             sizeof(struct http_request),
