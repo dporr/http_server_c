@@ -54,7 +54,7 @@ int main() {
 		}
 
 		ssize_t read_bytes = recv(client_socket, r, MAX_REQUEST_BUFFER,0);
-		printf("Got %ld bytes for request %s", read_bytes, r);
+		printf("Got %ld bytes for request\n\n%s", read_bytes, r);
 		parse_request(r, client_data);
 		
 		struct response my_r = { 
@@ -78,12 +78,14 @@ int main() {
 					sprintf(headers, "Content-Type: text/plain\nContent-Length: %ld\n", strlen(ptr));
 					strcpy(my_r.headers, headers);
 				} else if(strcmp(token, "user-agent" ) == 0){
+    				char *token = strtok_r(r, "\r\n", &ptr);
+					parse_headers(ptr, client_data->headers);
 					char* UA = client_data->headers[(int)HTTP_USER_AGENT_H].header_v;
-					char* HH = client_data->headers[(int)HTTP_HOST_H].header_v;
-					char* AH = client_data->headers[(int)HTTP_ACCEPT_H].header_v;
-					printf("\n\nU-A:%s HostH: %s Accept: %s\n\n", UA, HH, AH);
+					// char* HH = client_data->headers[(int)HTTP_HOST_H].header_v;
+					// char* AH = client_data->headers[(int)HTTP_ACCEPT_H].header_v;
+					// printf("\n\nU-A:%s HostH: %s Accept: %s\n\n", UA, HH, AH);
 					char res_headers[512] = {0};
-					sprintf(res_headers, "Content-Type: text/plain\nContent-Length: %ld\n", strlen(UA));
+					sprintf(res_headers, "Content-Type: text/plain\nContent-Length: %ld\n", strlen(UA)-1);
 					strcpy(my_r.headers, res_headers);
 					strcpy(my_r.body, UA);
 				}

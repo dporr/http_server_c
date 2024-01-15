@@ -23,11 +23,11 @@
 #define HTTP_403_Forbbiden "403 Forbidden"
 #define HTTP_404_Not_Found "404 Not Found"
 enum http_header {
-    HTTP_GENERIC_H = -1,
-    HTTP_HOST_H,
-    HTTP_USER_AGENT_H,
-    HTTP_REFERER_H,
-    HTTP_ACCEPT_H
+     HTTP_GENERIC_H = -1,
+    // HTTP_HOST_H,
+    HTTP_USER_AGENT_H
+    // HTTP_REFERER_H,
+    // HTTP_ACCEPT_H
 };
 
 extern const char* http_header_values[]; // Declaration as an external symbol

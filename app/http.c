@@ -1,10 +1,10 @@
 #include "http.h"
 
 const char* http_header_values[] = {
-    "Host",
-    "User-Agent",
-    "Referer",
-    "Accept"
+    // "Host",
+    "User-Agent"
+    // "Referer",
+    // "Accept"
 };
 
 ssize_t send_response(int client_socket, struct response my_r){
@@ -56,15 +56,16 @@ void parse_headers(char *r, struct header_kv *rq_headers){
     }
     char *ptr;
     char *token = strtok_r(r, "\r\n",&ptr);
+    ssize_t header_n = sizeof(http_header_values) / sizeof(http_header_values[0]);
     while(token){
-        // printf("Got header: %s\n", token);
+        printf("\nGot header: %s\n", token);
         char *sptr;
         char *stoken = strtok_r(token, ":", &sptr);
-        ssize_t t = sizeof(http_header_values) / sizeof(http_header_values[0]);
-        for(int i=0; i <= sizeof(http_header_values) / sizeof(http_header_values[0]) ; i++){
-            if(strcmp(stoken,http_header_values[i]) == 0){
+        for(int i=0; i <= header_n ; i++){
+            if(strcmp(stoken,"User-Agent") == 0){
                 (rq_headers + i )->header_k = (enum http_header) i;
                 strcpy((rq_headers + i)->header_v, sptr);
+                break;
             }
         }
 		token = strtok_r(NULL, "\r\n", &ptr);
@@ -88,13 +89,14 @@ ssize_t parse_request(char *r, struct http_request *client_data){
     }
     //tokenize *r and validate individual parts
     char *ptr;
-    char *token = strtok_r(r, "\r\n", &ptr);
+    char r_copy[strlen(r)];
+    strncpy(r_copy, r, strlen(r));
+    char *token = strtok_r(r_copy, "\r\n", &ptr);
     if(client_data->request_line) {
         parse_request_line(token, client_data->request_line);
     }
-    parse_headers(ptr, client_data->headers);
     printf("Size of r: %lu size of client_data: %lu \nContents of Request-Line: %s %s %s",
-            strlen(r),
+            strlen(r_copy),
             sizeof(struct http_request),
             client_data->request_line->method,
             client_data->request_line->path,
