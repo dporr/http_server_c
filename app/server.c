@@ -85,7 +85,7 @@ int main() {
 					// char* AH = client_data->headers[(int)HTTP_ACCEPT_H].header_v;
 					// printf("\n\nU-A:%s HostH: %s Accept: %s\n\n", UA, HH, AH);
 					char res_headers[512] = {0};
-					sprintf(res_headers, "Content-Type: text/plain\nContent-Length: %ld\n", strlen(UA)-1);
+					sprintf(res_headers, "Content-Type: text/plain\nContent-Length:%ld\r\n", strlen(UA));
 					strcpy(my_r.headers, res_headers);
 					strcpy(my_r.body, UA);
 				}

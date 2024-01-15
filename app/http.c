@@ -64,7 +64,7 @@ void parse_headers(char *r, struct header_kv *rq_headers){
         for(int i=0; i <= header_n ; i++){
             if(strcmp(stoken,"User-Agent") == 0){
                 (rq_headers + i )->header_k = (enum http_header) i;
-                strcpy((rq_headers + i)->header_v, sptr);
+                strcpy((rq_headers + i)->header_v, &(sptr[1]));
                 break;
             }
         }
