@@ -1,12 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netinet/ip.h>
-#include <string.h>
-#include <errno.h>
-#include <unistd.h>
-#include "http.h"
+#include "server.h"
 int main() {
 	// Disable output buffering
 	setbuf(stdout, NULL);
@@ -35,13 +27,30 @@ int main() {
 	//https://man7.org/linux/man-pages/man2/bind.2.html
 	int bind_r = bind(socket_fd, (struct sockaddr *) &address, sizeof(address));
 	listen(socket_fd, 5);
-	while(1){
+	int client_fd = -1;
+	while(( client_fd = accept(socket_fd,0,0)) != -1){
+		printf("Accepted connection. Client FD: %d\n", (int)client_fd);
+		pthread_t thread_id;
+		memset(&thread_id, 0, sizeof(pthread_t));
+		pthread_create(&thread_id, NULL, (void*)(&handle_client), (void *) client_fd); 
+	}
+
+	return 0;
+}
+
+
+void handle_client(void *pClient_fd){
+	{
+		if( !pClient_fd || (int *) pClient_fd <= 0){
+			printf("Invalid Client socket FD: %d", (int) pClient_fd);
+		}
+		int client_fd = (int) pClient_fd;
 		/*Accept clients*/
 		//const struct sockaddr_in client_address;
 		//int accept(int socket, struct sockaddr *restrict address, socklen_t *restrict address_len);
 		//https://man7.org/linux/man-pages/man2/accept.2.html
-		int client_socket = accept(socket_fd, 0,0); //&client_address, sizeof(struct sockaddr_in));
-		printf("Accepted connection. Client FD: %d\n", client_socket);
+		//int client_socket = accept(socket_fd, 0,0); //&client_address, sizeof(struct sockaddr_in));
+		
 		//Read client request
 		//https://man7.org/linux/man-pages/man2/recv.2.html
 		char r[MAX_REQUEST_BUFFER] = {0};
@@ -53,7 +62,7 @@ int main() {
 			strcpy(client_data->headers[i].header_v, "");
 		}
 
-		ssize_t read_bytes = recv(client_socket, r, MAX_REQUEST_BUFFER,0);
+		ssize_t read_bytes = recv((int) client_fd, r, MAX_REQUEST_BUFFER,0);
 		printf("Got %ld bytes for request\n\n%s", read_bytes, r);
 		parse_request(r, client_data);
 		
@@ -102,10 +111,9 @@ int main() {
 				strcpy(my_r.headers, res_headers);
 			}
 		}
-		printf("Passing FD:%d\n", client_socket);
-		send_response(client_socket, my_r);
+		printf("Passing FD:%d\n",  (int) client_fd);
+		send_response((int) client_fd, my_r);
 		free(client_data->request_line);
 		free(client_data);
 	}
-	return 0;
 }
