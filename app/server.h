@@ -12,5 +12,5 @@
 #include "http.h"
 
 
-void handle_client(void *client_fd);
+void *handle_client(void *client_fd);
 #endif

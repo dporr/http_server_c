@@ -1,5 +1,6 @@
 #ifndef HTTP_H
 #define HTTP_H
+#include <stdint.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <stdlib.h>

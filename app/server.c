@@ -32,19 +32,19 @@ int main() {
 		printf("Accepted connection. Client FD: %d\n", (int)client_fd);
 		pthread_t thread_id;
 		memset(&thread_id, 0, sizeof(pthread_t));
-		pthread_create(&thread_id, NULL, (void*)(&handle_client), (void *) client_fd); 
+		pthread_create(&thread_id, NULL, &handle_client, (void *) (intptr_t)client_fd); 
 	}
 
 	return 0;
 }
 
 
-void handle_client(void *pClient_fd){
+void *handle_client(void * pClient_fd){
 	{
 		if( !pClient_fd || (int *) pClient_fd <= 0){
-			printf("Invalid Client socket FD: %d", (int) pClient_fd);
+			printf("Invalid Client socket FD: %d", (int)  (intptr_t) pClient_fd);
 		}
-		int client_fd = (int) pClient_fd;
+		int client_fd = (int) (intptr_t) pClient_fd;
 		/*Accept clients*/
 		//const struct sockaddr_in client_address;
 		//int accept(int socket, struct sockaddr *restrict address, socklen_t *restrict address_len);
@@ -116,4 +116,5 @@ void handle_client(void *pClient_fd){
 		free(client_data->request_line);
 		free(client_data);
 	}
+	return NULL;
 }
