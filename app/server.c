@@ -1,5 +1,16 @@
 #include "server.h"
-int main() {
+int main(int argc, char **argv) {
+
+	/*
+	// If <filename> exists in <directory>, you'll need to respond with a 200 OK response.
+	// The response should have a content type of application/octet-stream,
+	//  and it should contain the contents of the file as the body.
+	*/
+
+	// if(argc == 3  && strcmp("--directory", argv[1]))
+	// {
+	// 	printf("Getting file from %s\n", argv[2]);
+	// }
 	// Disable output buffering
 	setbuf(stdout, NULL);
 
@@ -98,7 +109,62 @@ void *handle_client(void * pClient_fd){
 					strcpy(my_r.headers, res_headers);
 					strcpy(my_r.body, UA);
 				}
-				else{
+				else if(strcmp(token, "files" ) == 0){
+					//Extract file slug
+					char *base_path = "/tmp/data/codecrafters.io/http-server-tester/";
+					char *n_ptr;
+					char *file_name = strtok_r(ptr, "/", &n_ptr);
+					//printf("File: %s", file_name);
+					//Set base path
+					size_t abs_path_size = strlen(base_path) + strlen(file_name) + 1;
+					if(abs_path_size >= 4096){
+						printf("Absolute path too long...");
+					}
+					char *abs_path = malloc( abs_path_size );
+					if(abs_path == NULL){
+						perror("Failed to allocate memory for abs_path");
+        				exit(EXIT_FAILURE);
+					}
+					snprintf(abs_path,abs_path_size, "%s%s", base_path, file_name );
+					//check for file existence
+					if (access(abs_path, F_OK) != 0) {
+						printf("File %s doesnt exist. Returning...\n", abs_path);
+						char res_headers[512] = {0};
+						sprintf(res_headers, "Content-Type: text/plain\nContent-Length: %d\n", 0);
+						strcpy(my_r.headers, res_headers);
+						strcpy(my_r.status_line.reason_phrase, HTTP_404_Not_Found);
+						my_r.status_line.status_code = 404;
+					} //send response
+					else{
+						//read file
+						FILE *fp = fopen(abs_path, "r");
+						if(fp == NULL){
+							//error out
+						}
+						//get file size
+						fseek(fp, 0L, SEEK_END);
+						long file_size = ftell(fp);
+						fseek(fp, 0L, SEEK_SET);
+						char *file_contents = malloc( (size_t) file_size + 1);
+						if(file_size >= MAX_REQUEST_BUFFER) {
+							printf("File exceeds MAX_RESPONSE_BUFFER: %d", MAX_REQUEST_BUFFER);
+						}
+						if( fread(file_contents, file_size, 1, fp ) != file_size){
+							printf("File read truncated at...");
+						}
+						//Response
+						char res_headers[512] = {0};
+						sprintf(res_headers, "Content-Type: application/octet-stream\nContent-Length: %d\n", file_size);
+						strcpy(my_r.headers, res_headers);
+						strcpy(my_r.status_line.reason_phrase, HTTP_200_OK);
+						strncpy(my_r.body, file_contents, file_size);
+						my_r.status_line.status_code = 200;
+
+					}
+					
+
+
+				} else{
 					char res_headers[512] = {0};
 					sprintf(res_headers, "Content-Type: text/plain\nContent-Length: %d\n", 0);
 					strcpy(my_r.headers, res_headers);

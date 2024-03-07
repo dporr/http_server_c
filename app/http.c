@@ -95,7 +95,7 @@ ssize_t parse_request(char *r, struct http_request *client_data){
     if(client_data->request_line) {
         parse_request_line(token, client_data->request_line);
     }
-    printf("Size of r: %lu size of client_data: %lu \nContents of Request-Line: %s %s %s",
+    printf("Size of r: %lu size of client_data: %lu \nContents of Request-Line: %s %s %s\n",
             strlen(r_copy),
             sizeof(struct http_request),
             client_data->request_line->method,
