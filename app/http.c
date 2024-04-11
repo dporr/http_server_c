@@ -34,9 +34,9 @@ ssize_t send_response(int client_socket, struct response my_r){
    return ret;
 }
 
-void parse_request_line(char *r, struct request_line *rl){   
-    char request_line[strlen(r)];
-    strncpy(request_line, r, strlen(r));
+void parse_request_line(char *incoming_request, struct request_line *rl){   
+    char request_line[strlen(incoming_request)];
+    strncpy(request_line, incoming_request, strlen(incoming_request));
     //Request-Line   = Method SP Request-URI SP HTTP-Version CRLF
     char *token  = strtok(request_line, SP);
     strncpy(rl->method, token,9);
