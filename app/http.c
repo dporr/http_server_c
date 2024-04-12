@@ -101,7 +101,6 @@ ssize_t parse_request(char *r, struct http_request *client_data){
     {
         //TODO: Parse body and populate field
         strncpy(client_data->body, body + 4 , strlen(body));
-        printf("BD");
     }
     printf("Size of r: %lu size of client_data: %lu \nContents of Request-Line: %s %s %s\n",
             strlen(r_copy),

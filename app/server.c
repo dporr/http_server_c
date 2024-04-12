@@ -214,7 +214,10 @@ void *handle_client(void * pClient_fd){
 						if(fp == NULL){
 							//error out
 						}
-						printf("Created file: %s\n", abs_path);
+						//printf("Created file: %s\n", abs_path);
+						size_t content_length = strlen(client_data->body);
+						fprintf(fp,"%s", client_data->body);
+						fclose(fp);
 					}
 				//Write request parse_request to ptr
 				//return 201
