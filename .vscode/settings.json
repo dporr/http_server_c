@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "http.h": "c"
-    }
+        "http.h": "c",
+        "socket.h": "c"
+    },
+    "cmake.configureOnOpen": true
 }
