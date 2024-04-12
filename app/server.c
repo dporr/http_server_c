@@ -72,6 +72,9 @@ void *handle_client(void * pClient_fd){
 			client_data->headers[i].header_k = HTTP_GENERIC_H;
 			strcpy(client_data->headers[i].header_v, "");
 		}
+		//  the body with null values
+		client_data->body = malloc(4096);
+		memset(client_data->body, 0, 4096);
 
 		ssize_t read_bytes = recv((int) client_fd, r, MAX_REQUEST_BUFFER,0);
 		printf("Got %ld bytes for request\n\n%s", read_bytes, r);
@@ -86,7 +89,11 @@ void *handle_client(void * pClient_fd){
 			.body = {0}
 		};
 		if(client_data){
-			if( strcmp(client_data->request_line->path, "/" ) != 0){
+			//TODO: implement a request router for each supported method: GET, POST.
+			if(strcmp(client_data->request_line->method, "GET" ) == 0)
+			{
+				printf("Do GET stuff...");
+							if( strcmp(client_data->request_line->path, "/" ) != 0){
 				char path[512] = {0};
 				strcpy(path, client_data->request_line->path);
 				int i = 0;
@@ -98,8 +105,8 @@ void *handle_client(void * pClient_fd){
 					sprintf(headers, "Content-Type: text/plain\nContent-Length: %ld\n", strlen(ptr));
 					strcpy(my_r.headers, headers);
 				} else if(strcmp(token, "user-agent" ) == 0){
-    				char *token = strtok_r(r, "\r\n", &ptr);
-					parse_headers(ptr, client_data->headers);
+    				//char *token = strtok_r(r, "\r\n", &ptr);
+					//parse_headers(ptr, client_data->headers);
 					char* UA = client_data->headers[(int)HTTP_USER_AGENT_H].header_v;
 					// char* HH = client_data->headers[(int)HTTP_HOST_H].header_v;
 					// char* AH = client_data->headers[(int)HTTP_ACCEPT_H].header_v;
@@ -154,7 +161,7 @@ void *handle_client(void * pClient_fd){
 						}
 						//Response
 						char res_headers[512] = {0};
-						sprintf(res_headers, "Content-Type: application/octet-stream\nContent-Length: %d\n", file_size);
+						sprintf(res_headers, "Content-Type: application/octet-stream\nContent-Length: %ld\n", file_size);
 						strcpy(my_r.headers, res_headers);
 						strcpy(my_r.status_line.reason_phrase, HTTP_200_OK);
 						strncpy(my_r.body, file_contents, file_size);
@@ -176,6 +183,47 @@ void *handle_client(void * pClient_fd){
 				sprintf(res_headers, "Content-Type: text/plain\nContent-Length: %d\n", 0);
 				strcpy(my_r.headers, res_headers);
 			}
+			} 
+			else if(strcmp(client_data->request_line->method, "POST" ) == 0)
+			{
+				printf("Do POST stuff...");
+				char *ptr;
+				char path[512] = {0};
+				strcpy(path, client_data->request_line->path);
+				char *token = strtok_r(path, "/", &ptr);
+				//printf("PATH: %s\n", ptr);
+				//TODO: Create file with name `ptr` under `/tmp/data/codecrafters.io/http-server-tester/`
+					//Extract file slug
+					char *base_path = "/tmp/data/codecrafters.io/http-server-tester/";
+					char *n_ptr;
+					//printf("File: %s", file_name);
+					//Set base path
+					size_t abs_path_size = strlen(base_path) + strlen(ptr) + 1;
+					if(abs_path_size >= 4096){
+						printf("Absolute path too long...");
+					}
+					char *abs_path = malloc( abs_path_size );
+					if(abs_path == NULL){
+						perror("Failed to allocate memory for abs_path");
+        				exit(EXIT_FAILURE);
+					}
+					snprintf(abs_path,abs_path_size, "%s%s", base_path, ptr );
+					//check for file existence
+					if (access(abs_path, F_OK) != 0) {
+						FILE *fp = fopen(abs_path, "w");
+						if(fp == NULL){
+							//error out
+						}
+						printf("Created file: %s\n", abs_path);
+					}
+				//Write request parse_request to ptr
+				//return 201
+				char res_headers[512] = {0};
+				sprintf(res_headers, "Content-Type: text/plain\nContent-Length: %d\n", 0);
+				strcpy(my_r.headers, res_headers);
+				strcpy(my_r.status_line.reason_phrase, HTTP_201_OK);
+				my_r.status_line.status_code = 201;
+			} 
 		}
 		printf("Passing FD:%d\n",  (int) client_fd);
 		send_response((int) client_fd, my_r);

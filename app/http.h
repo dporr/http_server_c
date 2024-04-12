@@ -20,6 +20,7 @@
 //Status codes
 #define HTTP_100_continue  "100 Continue"
 #define HTTP_200_OK        "200 OK"
+#define HTTP_201_OK        "201 OK"
 #define HTTP_302_Found     "302 Found"
 #define HTTP_403_Forbbiden "403 Forbidden"
 #define HTTP_404_Not_Found "404 Not Found"
@@ -74,6 +75,7 @@ struct request_headers {
 struct http_request {
     struct request_line *request_line;
     struct header_kv headers[10];
+    char* body;
 };
 
 ssize_t send_response(int client_socket, struct response my_r);
